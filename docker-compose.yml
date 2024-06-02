@@ -1,0 +1,114 @@
+services:
+  # Proxy to bypass Cloudflare protection
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/Stockholm
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
+    networks:
+      - servarr
+
+  # Indexer, for searching various trackers
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - ./config/prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    networks:
+      - servarr
+
+  # Handles TV series
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - ./config/sonarr:/config
+      - ./series:/data/tv #optional
+      - ./downloads:/data/downloads #optional
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+    networks:
+      - servarr
+
+  # Handles movies
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - ./config/radarr:/config
+      - ./movies:/data/movies #optional
+      - ./downloads:/data/downloads #optional
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    networks:
+      - servarr
+
+  # Handles eBooks
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    hostname: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - ./config/readarr:/config
+      - ./books:/data/books #optional
+      - ./downloads:/data/downloads #optional
+    ports:
+      - 8787:8787
+    restart: unless-stopped
+    networks:
+      - servarr
+
+  # Downloader
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    hostname: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - ./config/transmission:/config
+      - ./downloads:/data/downloads
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+    networks:
+      - servarr
+
+networks:
+  servarr:
+    name: servarr
+    driver: bridge
