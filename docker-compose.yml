@@ -3,13 +3,15 @@ services:
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
+    hostname: flaresolverr
+    env_file: .env
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
-      - TZ=Europe/Stockholm
-    ports:
-      - "${PORT:-8191}:8191"
+      - TZ=${TZ:-Etc/UTC}
+    expose:
+      - 8191
     restart: unless-stopped
     networks:
       - servarr
@@ -19,10 +21,15 @@ services:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     hostname: prowlarr
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:9696/prowlarr/ping" ]
+      interval: 30s
+      retries: 10
+    env_file: .env
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
     volumes:
       - ./config/prowlarr:/config
     ports:
@@ -36,16 +43,21 @@ services:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     hostname: sonarr
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:8989/sonarr/ping" ]
+      interval: 30s
+      retries: 10
+    env_file: .env
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
     volumes:
       - ./config/sonarr:/config
       - ./series:/data/tv #optional
       - ./downloads:/data/downloads #optional
-    ports:
-      - 8989:8989
+    expose:
+      - 8989
     restart: unless-stopped
     networks:
       - servarr
@@ -55,16 +67,21 @@ services:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     hostname: radarr
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:7878/radarr/ping" ]
+      interval: 30s
+      retries: 10
+    env_file: .env
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
     volumes:
       - ./config/radarr:/config
       - ./movies:/data/movies #optional
       - ./downloads:/data/downloads #optional
-    ports:
-      - 7878:7878
+    expose:
+      - 7878
     restart: unless-stopped
     networks:
       - servarr
@@ -74,16 +91,45 @@ services:
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
     hostname: readarr
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:8787/readarr/ping" ]
+      interval: 5s
+      retries: 10
+    env_file: .env
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
     volumes:
       - ./config/readarr:/config
       - ./books:/data/books #optional
       - ./downloads:/data/downloads #optional
-    ports:
-      - 8787:8787
+    expose:
+      - 8787
+    restart: unless-stopped
+    networks:
+      - servarr
+
+  # Handles subtitles
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    hostname: bazarr
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:6767/bazarr/ping" ]
+      interval: 5s
+      retries: 10
+    env_file: .env
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+    volumes:
+      - ./config/bazarr:/config
+      - ./movies:/movies #optional
+      - ./series:/tv #optional
+    expose:
+      - 6767
     restart: unless-stopped
     networks:
       - servarr
@@ -93,13 +139,22 @@ services:
     image: lscr.io/linuxserver/transmission:latest
     container_name: transmission
     hostname: transmission
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:9091/transmission/ping" ]
+      interval: 5s
+      retries: 10
+    env_file: .env
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+      - USER=${TRANSMISSION_USER:-admin}
+      - FILE__PASS=/run/secrets/transmission_password
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+    secrets:
+      - transmission_password
     volumes:
       - ./config/transmission:/config
-      - ./downloads:/data/downloads
+      - ./downloads:/downloads
     ports:
       - 9091:9091
       - 51413:51413
@@ -112,3 +167,7 @@ networks:
   servarr:
     name: servarr
     driver: bridge
+
+secrets:
+  transmission_password:
+    file: transmission_password.secret
