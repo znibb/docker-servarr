@@ -1,2 +1,4 @@
+.env
+transmission_password.secret
 config/*/*
 !config/*/.gitkeep
