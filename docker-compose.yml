@@ -20,38 +20,47 @@ services:
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
-    hostname: prowlarr
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:9696/prowlarr/ping" ]
-      interval: 30s
-      retries: 10
+    hostname: prowlarr.${DOMAIN_NAME}
     env_file: .env
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prowlarr.entrypoints=https
+      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.prowlarr.tls=true
+      - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
+      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+      - traefik.http.routers.prowlarr.middlewares=default@file
     volumes:
       - ./config/prowlarr:/config
-    ports:
-      - 9696:9696
+    expose:
+      - 9696
     restart: unless-stopped
     networks:
       - servarr
+      - traefik
 
   # Handles TV series
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
-    hostname: sonarr
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:8989/sonarr/ping" ]
-      interval: 30s
-      retries: 10
+    hostname: sonarr.${DOMAIN_NAME}
     env_file: .env
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.sonarr.entrypoints=https
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.sonarr.tls=true
+      - traefik.http.routers.sonarr.tls.certresolver=cloudflare
+      - traefik.http.services.sonarr.loadbalancer.server.port=8989
+      - traefik.http.routers.sonarr.middlewares=default@file
     volumes:
       - ./config/sonarr:/config
       - ./series:/data/tv #optional
@@ -61,21 +70,26 @@ services:
     restart: unless-stopped
     networks:
       - servarr
+      - traefik
 
   # Handles movies
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
-    hostname: radarr
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:7878/radarr/ping" ]
-      interval: 30s
-      retries: 10
+    hostname: radarr.${DOMAIN_NAME}
     env_file: .env
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.radarr.entrypoints=https
+      - traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.radarr.tls=true
+      - traefik.http.routers.radarr.tls.certresolver=cloudflare
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+      - traefik.http.routers.radarr.middlewares=default@file
     volumes:
       - ./config/radarr:/config
       - ./movies:/data/movies #optional
@@ -85,21 +99,26 @@ services:
     restart: unless-stopped
     networks:
       - servarr
+      - traefik
 
   # Handles eBooks
   readarr:
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
-    hostname: readarr
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:8787/readarr/ping" ]
-      interval: 5s
-      retries: 10
+    hostname: readarr.${DOMAIN_NAME}
     env_file: .env
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.readarr.entrypoints=https
+      - traefik.http.routers.readarr.rule=Host(`readarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.readarr.tls=true
+      - traefik.http.routers.readarr.tls.certresolver=cloudflare
+      - traefik.http.services.readarr.loadbalancer.server.port=8787
+      - traefik.http.routers.readarr.middlewares=default@file
     volumes:
       - ./config/readarr:/config
       - ./books:/data/books #optional
@@ -109,21 +128,26 @@ services:
     restart: unless-stopped
     networks:
       - servarr
+      - traefik
 
   # Handles subtitles
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
-    hostname: bazarr
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:6767/bazarr/ping" ]
-      interval: 5s
-      retries: 10
+    hostname: bazarr.${DOMAIN_NAME}
     env_file: .env
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.bazarr.entrypoints=https
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.bazarr.tls=true
+      - traefik.http.routers.bazarr.tls.certresolver=cloudflare
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+      - traefik.http.routers.bazarr.middlewares=default@file
     volumes:
       - ./config/bazarr:/config
       - ./movies:/movies #optional
@@ -133,16 +157,13 @@ services:
     restart: unless-stopped
     networks:
       - servarr
+      - traefik
 
   # Downloader
   transmission:
     image: lscr.io/linuxserver/transmission:latest
     container_name: transmission
-    hostname: transmission
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:9091/transmission/ping" ]
-      interval: 5s
-      retries: 10
+    hostname: transmission.${DOMAIN_NAME}
     env_file: .env
     environment:
       - USER=${TRANSMISSION_USER:-admin}
@@ -150,23 +171,37 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.transmission.entrypoints=https
+      - traefik.http.routers.transmission.rule=Host(`transmission.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.transmission.tls=true
+      - traefik.http.routers.transmission.tls.certresolver=cloudflare
+      - traefik.http.services.transmission.loadbalancer.server.port=9091
+      - traefik.http.routers.transmission.middlewares=default@file
     secrets:
       - transmission_password
     volumes:
       - ./config/transmission:/config
       - ./downloads:/downloads
     ports:
-      - 9091:9091
       - 51413:51413
       - 51413:51413/udp
+    expose:
+      - 9091
     restart: unless-stopped
     networks:
       - servarr
+      - traefik
 
 networks:
   servarr:
     name: servarr
     driver: bridge
+
+  traefik:
+    external: true
+    name: traefik
 
 secrets:
   transmission_password:
