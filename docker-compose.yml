@@ -63,8 +63,8 @@ services:
       - traefik.http.routers.sonarr.middlewares=default@file
     volumes:
       - ./config/sonarr:/config
-      - ./series:/data/tv #optional
-      - ./downloads:/data/downloads #optional
+      - /mnt/nas/series:/data/tv #optional
+      - /mnt/nas/slask/.torrents:/data/downloads #optional
     expose:
       - 8989
     restart: unless-stopped
@@ -92,8 +92,8 @@ services:
       - traefik.http.routers.radarr.middlewares=default@file
     volumes:
       - ./config/radarr:/config
-      - ./movies:/data/movies #optional
-      - ./downloads:/data/downloads #optional
+      - /mnt/nas/movies:/data/movies #optional
+      - /mnt/nas/slask/.torrents:/data/downloads #optional
     expose:
       - 7878
     restart: unless-stopped
@@ -121,8 +121,8 @@ services:
       - traefik.http.routers.readarr.middlewares=default@file
     volumes:
       - ./config/readarr:/config
-      - ./books:/data/books #optional
-      - ./downloads:/data/downloads #optional
+      - /mnt/nas/ebooks:/data/books #optional
+      - /mnt/nas/slask/.torrents:/data/downloads #optional
     expose:
       - 8787
     restart: unless-stopped
@@ -150,8 +150,8 @@ services:
       - traefik.http.routers.bazarr.middlewares=default@file
     volumes:
       - ./config/bazarr:/config
-      - ./movies:/movies #optional
-      - ./series:/tv #optional
+      - /mnt/nas/movies:/data/movies #optional
+      - /mnt/nas/series:/data/tv #optional
     expose:
       - 6767
     restart: unless-stopped
@@ -183,7 +183,7 @@ services:
       - transmission_password
     volumes:
       - ./config/transmission:/config
-      - ./downloads:/downloads
+      - /mnt/nas/slask/.torrents:/data/downloads
     ports:
       - 51413:51413
       - 51413:51413/udp
