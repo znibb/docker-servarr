@@ -3,16 +3,18 @@ services:
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
-    hostname: flaresolverr
-    env_file: .env
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - LOG_HTML=${LOG_HTML:-false}
-      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
-      - TZ=${TZ:-Etc/UTC}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_HTML: ${LOG_HTML:-false}
+      CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
+      TZ: ${TZ:-Etc/UTC}
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     expose:
       - 8191
-    restart: unless-stopped
     networks:
       - servarr
 
@@ -20,188 +22,192 @@ services:
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
-    hostname: prowlarr.${DOMAIN_NAME}
-    env_file: .env
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
     labels:
+      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.prowlarr.entrypoints=https
-      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.prowlarr.tls=true
       - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
       - traefik.http.routers.prowlarr.middlewares=default@file
-    volumes:
-      - ./config/prowlarr:/config
     expose:
       - 9696
-    restart: unless-stopped
     networks:
       - servarr
       - traefik
+    volumes:
+      - ./config/prowlarr:/config
 
   # Handles TV series
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
-    hostname: sonarr.${DOMAIN_NAME}
-    env_file: .env
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
     labels:
+      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.sonarr.entrypoints=https
-      - traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.sonarr.tls=true
       - traefik.http.routers.sonarr.tls.certresolver=cloudflare
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
       - traefik.http.routers.sonarr.middlewares=default@file
+    expose:
+      - 8989
+    networks:
+      - servarr
+      - traefik
     volumes:
       - ./config/sonarr:/config
       - series:/data/tv #optional
       - downloads:/data/downloads #optional
-    expose:
-      - 8989
-    restart: unless-stopped
-    networks:
-      - servarr
-      - traefik
 
   # Handles movies
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
-    hostname: radarr.${DOMAIN_NAME}
-    env_file: .env
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
     labels:
+      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.radarr.entrypoints=https
-      - traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.radarr.rule=Host(`radarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.radarr.tls=true
       - traefik.http.routers.radarr.tls.certresolver=cloudflare
       - traefik.http.services.radarr.loadbalancer.server.port=7878
       - traefik.http.routers.radarr.middlewares=default@file
+    expose:
+      - 7878
+    networks:
+      - servarr
+      - traefik
     volumes:
       - ./config/radarr:/config
       - movies:/data/movies #optional
       - downloads:/data/downloads #optional
-    expose:
-      - 7878
-    restart: unless-stopped
-    networks:
-      - servarr
-      - traefik
 
   # Handles eBooks
   readarr:
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
-    hostname: readarr.${DOMAIN_NAME}
-    env_file: .env
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
     labels:
+      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.readarr.entrypoints=https
-      - traefik.http.routers.readarr.rule=Host(`readarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.readarr.rule=Host(`readarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.readarr.tls=true
       - traefik.http.routers.readarr.tls.certresolver=cloudflare
       - traefik.http.services.readarr.loadbalancer.server.port=8787
       - traefik.http.routers.readarr.middlewares=default@file
+    expose:
+      - 8787
+    networks:
+      - servarr
+      - traefik
     volumes:
       - ./config/readarr:/config
       - ebooks:/data/books #optional
       - downloads:/data/downloads #optional
-    expose:
-      - 8787
-    restart: unless-stopped
-    networks:
-      - servarr
-      - traefik
 
   # Handles subtitles
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
-    hostname: bazarr.${DOMAIN_NAME}
-    env_file: .env
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
     labels:
+      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.bazarr.entrypoints=https
-      - traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.bazarr.tls=true
       - traefik.http.routers.bazarr.tls.certresolver=cloudflare
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
       - traefik.http.routers.bazarr.middlewares=default@file
+    expose:
+      - 6767
+    networks:
+      - servarr
+      - traefik
     volumes:
       - ./config/bazarr:/config
       - movies:/data/movies #optional
       - series:/data/tv #optional
-    expose:
-      - 6767
-    restart: unless-stopped
-    networks:
-      - servarr
-      - traefik
 
   # Downloader
   transmission:
     image: lscr.io/linuxserver/transmission:latest
     container_name: transmission
-    hostname: transmission.${DOMAIN_NAME}
-    env_file: .env
+    restart: unless-stopped
+    secrets:
+      - transmission_password
+    env_file:
+      - .env
     environment:
-      - USER=${TRANSMISSION_USER:-admin}
-      - FILE__PASS=/run/secrets/transmission_password
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
+      USER: ${TRANSMISSION_USER:-admin}
+      FILE__PASS: /run/secrets/transmission_password
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
     labels:
       - traefik.enable=true
       - traefik.http.routers.transmission.entrypoints=https
-      - traefik.http.routers.transmission.rule=Host(`transmission.${DOMAIN_NAME:?error}`)
+      - traefik.http.routers.transmission.rule=Host(`transmission.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.transmission.tls=true
       - traefik.http.routers.transmission.tls.certresolver=cloudflare
       - traefik.http.services.transmission.loadbalancer.server.port=9091
       - traefik.http.routers.transmission.middlewares=default@file
-    secrets:
-      - transmission_password
-    volumes:
-      - ./config/transmission:/config
-      - downloads:/data/downloads
+    expose:
+      - 9091
     ports:
       - 51413:51413
       - 51413:51413/udp
-    expose:
-      - 9091
-    restart: unless-stopped
     networks:
       - servarr
       - traefik
+    volumes:
+      - ./config/transmission:/config
+      - downloads:/data/downloads
 
 networks:
   servarr:
     name: servarr
-    driver: bridge
+    internal: true
 
   traefik:
     external: true
-    name: traefik
 
 secrets:
   transmission_password:
