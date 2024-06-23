@@ -4,6 +4,7 @@ Torrent management stack based on the *arr suite
 ## Server setup
 1. Run init.sh: `./init.sh` (only required at first setup, initializes some files)
 1. Input personal data into `.env` (can use `cat /etc/timezone` and `id` for timezone and UID information respectively)
+1. Create a transmission password and put it in `./secrets/transmission_password.secret`
 1. Make sure that Docker network `traefik` exists: `docker network ls`
 1. Run `docker compose up` and check logs
 
@@ -67,7 +68,7 @@ Torrent management stack based on the *arr suite
 1. Settings->Providers, add choice providers
 
 ### Transmission
-1. Open Transmission (user//pass as set in .env and transmission_password.secret)
+1. Open Transmission (user//pass as set in .env and ./secrets/transmission_password.secret)
 1. Hamburger menu->Edit preferences->Network, check that Peer listening port shows "Port is Open"
 1. Back to Prowlarr
 1. Settings->Download Clients, Add Download Client->Transmission
