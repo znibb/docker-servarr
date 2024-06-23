@@ -211,7 +211,7 @@ networks:
 
 secrets:
   transmission_password:
-    file: transmission_password.secret
+    file: ./secrets/transmission_password.secret
 
 volumes:
   downloads:
