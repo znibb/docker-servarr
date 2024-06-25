@@ -4,8 +4,6 @@ services:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       LOG_HTML: ${LOG_HTML:-false}
@@ -13,8 +11,6 @@ services:
       TZ: ${TZ:-Etc/UTC}
     labels:
       - com.centurylinklabs.watchtower.enable=true
-    expose:
-      - 8191
     networks:
       - servarr
 
@@ -23,8 +19,6 @@ services:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       PUID: ${PUID:?}
       PGID: ${PGID:?}
@@ -37,9 +31,7 @@ services:
       - traefik.http.routers.prowlarr.tls=true
       - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
-      - traefik.http.routers.prowlarr.middlewares=default@file
-    expose:
-      - 9696
+      - traefik.http.routers.prowlarr.middlewares=authentik@file
     networks:
       - servarr
       - traefik
@@ -51,8 +43,6 @@ services:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       PUID: ${PUID:?}
       PGID: ${PGID:?}
@@ -65,9 +55,7 @@ services:
       - traefik.http.routers.sonarr.tls=true
       - traefik.http.routers.sonarr.tls.certresolver=cloudflare
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
-      - traefik.http.routers.sonarr.middlewares=default@file
-    expose:
-      - 8989
+      - traefik.http.routers.sonarr.middlewares=authentik@file
     networks:
       - servarr
       - traefik
@@ -81,8 +69,6 @@ services:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       PUID: ${PUID:?}
       PGID: ${PGID:?}
@@ -95,9 +81,7 @@ services:
       - traefik.http.routers.radarr.tls=true
       - traefik.http.routers.radarr.tls.certresolver=cloudflare
       - traefik.http.services.radarr.loadbalancer.server.port=7878
-      - traefik.http.routers.radarr.middlewares=default@file
-    expose:
-      - 7878
+      - traefik.http.routers.radarr.middlewares=authentik@file
     networks:
       - servarr
       - traefik
@@ -111,8 +95,6 @@ services:
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       PUID: ${PUID:?}
       PGID: ${PGID:?}
@@ -125,9 +107,7 @@ services:
       - traefik.http.routers.readarr.tls=true
       - traefik.http.routers.readarr.tls.certresolver=cloudflare
       - traefik.http.services.readarr.loadbalancer.server.port=8787
-      - traefik.http.routers.readarr.middlewares=default@file
-    expose:
-      - 8787
+      - traefik.http.routers.readarr.middlewares=authentik@file
     networks:
       - servarr
       - traefik
@@ -141,8 +121,6 @@ services:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       PUID: ${PUID:?}
       PGID: ${PGID:?}
@@ -155,7 +133,7 @@ services:
       - traefik.http.routers.bazarr.tls=true
       - traefik.http.routers.bazarr.tls.certresolver=cloudflare
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
-      - traefik.http.routers.bazarr.middlewares=default@file
+      - traefik.http.routers.bazarr.middlewares=authentik@file
     expose:
       - 6767
     networks:
@@ -173,8 +151,6 @@ services:
     restart: unless-stopped
     secrets:
       - transmission_password
-    env_file:
-      - .env
     environment:
       USER: ${TRANSMISSION_USER:-admin}
       FILE__PASS: /run/secrets/transmission_password
@@ -188,9 +164,7 @@ services:
       - traefik.http.routers.transmission.tls=true
       - traefik.http.routers.transmission.tls.certresolver=cloudflare
       - traefik.http.services.transmission.loadbalancer.server.port=9091
-      - traefik.http.routers.transmission.middlewares=default@file
-    expose:
-      - 9091
+      - traefik.http.routers.transmission.middlewares=authentik@file
     ports:
       - 51413:51413
       - 51413:51413/udp
@@ -204,7 +178,6 @@ services:
 networks:
   servarr:
     name: servarr
-    internal: true
 
   traefik:
     external: true

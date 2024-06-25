@@ -9,6 +9,8 @@ Torrent management stack based on the *arr suite
 1. Run `docker compose up` and check logs
 
 ## Application setup
+Services are set up to use Authentik for authentication, if that's not preferable simply comment out the middleware lables from each service
+
 ### Prowlarr
 1. Log into prowlarr (Set up user//pass if first time logging in)
 1. Settings->Indexers, add FlareSolverr
