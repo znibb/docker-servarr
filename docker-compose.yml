@@ -31,7 +31,7 @@ services:
       - traefik.http.routers.prowlarr.tls=true
       - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
-      - traefik.http.routers.prowlarr.middlewares=authentik@file
+      - traefik.http.routers.prowlarr.middlewares=authentik-http@file
     networks:
       - servarr
       - traefik
@@ -55,7 +55,7 @@ services:
       - traefik.http.routers.sonarr.tls=true
       - traefik.http.routers.sonarr.tls.certresolver=cloudflare
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
-      - traefik.http.routers.sonarr.middlewares=authentik@file
+      - traefik.http.routers.sonarr.middlewares=authentik-http@file
     networks:
       - servarr
       - traefik
@@ -81,7 +81,7 @@ services:
       - traefik.http.routers.radarr.tls=true
       - traefik.http.routers.radarr.tls.certresolver=cloudflare
       - traefik.http.services.radarr.loadbalancer.server.port=7878
-      - traefik.http.routers.radarr.middlewares=authentik@file
+      - traefik.http.routers.radarr.middlewares=authentik-http@file
     networks:
       - servarr
       - traefik
@@ -107,7 +107,7 @@ services:
       - traefik.http.routers.readarr.tls=true
       - traefik.http.routers.readarr.tls.certresolver=cloudflare
       - traefik.http.services.readarr.loadbalancer.server.port=8787
-      - traefik.http.routers.readarr.middlewares=authentik@file
+      - traefik.http.routers.readarr.middlewares=authentik-http@file
     networks:
       - servarr
       - traefik
@@ -133,7 +133,7 @@ services:
       - traefik.http.routers.bazarr.tls=true
       - traefik.http.routers.bazarr.tls.certresolver=cloudflare
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
-      - traefik.http.routers.bazarr.middlewares=authentik@file
+      - traefik.http.routers.bazarr.middlewares=authentik-http@file
     expose:
       - 6767
     networks:
@@ -164,7 +164,7 @@ services:
       - traefik.http.routers.transmission.tls=true
       - traefik.http.routers.transmission.tls.certresolver=cloudflare
       - traefik.http.services.transmission.loadbalancer.server.port=9091
-      - traefik.http.routers.transmission.middlewares=authentik@file
+      - traefik.http.routers.transmission.middlewares=authentik-http@file
     ports:
       - 51413:51413
       - 51413:51413/udp
