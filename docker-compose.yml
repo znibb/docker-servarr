@@ -175,6 +175,27 @@ services:
       - ./config/transmission:/config
       - downloads:/data/downloads
 
+  # Request handling
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: info
+      TZ: ${TZ:-Etc/UTC}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyseerr.entrypoints=https
+      - traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.${TRAEFIK_DOMAIN:?}`)
+      - traefik.http.routers.jellyseerr.tls=true
+      - traefik.http.routers.jellyseerr.tls.certresolver=cloudflare
+      - traefik.http.services.jellyseerr.loadbalancer.server.port=5055
+      - traefik.http.routers.jellyseerr.middlewares=authentik@file
+    networks:
+      - traefik
+    volumes:
+      - ./config/jellyseerr:/app/config
+
 networks:
   servarr:
     name: servarr
