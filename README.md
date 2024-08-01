@@ -1,5 +1,5 @@
 # docker-servarr <!-- omit from toc -->
-Torrent management stack based on the *arr suite
+Media management stack based on the *arr suite
 
 ## Table of Contents <!-- omit from toc -->
 - [1. Server setup](#1-server-setup)
