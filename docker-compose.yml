@@ -36,7 +36,7 @@ services:
       - servarr
       - traefik
     volumes:
-      - ./config/prowlarr:/config
+      - ./data/prowlarr:/config
 
   # Handles TV series
   sonarr:
@@ -60,7 +60,7 @@ services:
       - servarr
       - traefik
     volumes:
-      - ./config/sonarr:/config
+      - ./data/sonarr:/config
       - series:/data/tv #optional
       - downloads:/data/downloads #optional
 
@@ -86,7 +86,7 @@ services:
       - servarr
       - traefik
     volumes:
-      - ./config/radarr:/config
+      - ./data/radarr:/config
       - movies:/data/movies #optional
       - downloads:/data/downloads #optional
 
@@ -112,7 +112,7 @@ services:
       - servarr
       - traefik
     volumes:
-      - ./config/readarr:/config
+      - ./data/readarr:/config
       - ebooks:/data/books #optional
       - downloads:/data/downloads #optional
 
@@ -140,7 +140,7 @@ services:
       - servarr
       - traefik
     volumes:
-      - ./config/bazarr:/config
+      - ./data/bazarr:/config
       - movies:/data/movies #optional
       - series:/data/tv #optional
 
@@ -172,7 +172,7 @@ services:
       - servarr
       - traefik
     volumes:
-      - ./config/transmission:/config
+      - ./data/transmission:/config
       - downloads:/data/downloads
 
   # Request handling
@@ -194,7 +194,7 @@ services:
     networks:
       - traefik
     volumes:
-      - ./config/jellyseerr:/app/config
+      - ./data/jellyseerr:/app/config
 
 networks:
   servarr:

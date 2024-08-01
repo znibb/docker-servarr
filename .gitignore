@@ -1,5 +1,5 @@
 .env
+data/*/*
+!data/*/.gitkeep
 secrets/*
 !secrets/.gitkeep
-config/*/*
-!config/*/.gitkeep
