@@ -9,10 +9,10 @@ services:
       LOG_HTML: ${LOG_HTML:-false}
       CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
       TZ: ${TZ:-Etc/UTC}
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
     networks:
       - servarr
+    ports:
+      - 8191:8191
 
   # Indexer, for searching various trackers
   prowlarr:
@@ -24,7 +24,6 @@ services:
       PGID: ${PGID:?}
       TZ: ${TZ:-Etc/UTC}
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.prowlarr.entrypoints=https
       - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${TRAEFIK_DOMAIN:?}`)
@@ -35,8 +34,10 @@ services:
     networks:
       - servarr
       - traefik
+    ports:
+      - 9696:9696
     volumes:
-      - ./data/prowlarr:/config
+      - prowlarr:/config
 
   # Handles TV series
   sonarr:
@@ -48,7 +49,6 @@ services:
       PGID: ${PGID:?}
       TZ: ${TZ:-Etc/UTC}
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.sonarr.entrypoints=https
       - traefik.http.routers.sonarr.rule=Host(`sonarr.${TRAEFIK_DOMAIN:?}`)
@@ -59,10 +59,12 @@ services:
     networks:
       - servarr
       - traefik
+    ports:
+      - 8989:8989
     volumes:
-      - ./data/sonarr:/config
-      - series:/data/tv #optional
-      - downloads:/data/downloads #optional
+      - sonarr:/config
+      - ${SERIES_DIR}:/data/tv
+      - ${DOWNLOADS_DIR}:/data/downloads
 
   # Handles movies
   radarr:
@@ -74,7 +76,6 @@ services:
       PGID: ${PGID:?}
       TZ: ${TZ:-Etc/UTC}
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.radarr.entrypoints=https
       - traefik.http.routers.radarr.rule=Host(`radarr.${TRAEFIK_DOMAIN:?}`)
@@ -85,36 +86,38 @@ services:
     networks:
       - servarr
       - traefik
+    ports:
+      - 7878:7878
     volumes:
-      - ./data/radarr:/config
-      - movies:/data/movies #optional
-      - downloads:/data/downloads #optional
+      - radarr:/config
+      - ${MOVIES_DIR}:/data/movies
+      - ${DOWNLOADS_DIR}:/data/downloads
 
   # Handles eBooks
-  readarr:
-    image: lscr.io/linuxserver/readarr:develop
-    container_name: readarr
-    restart: unless-stopped
-    environment:
-      PUID: ${PUID:?}
-      PGID: ${PGID:?}
-      TZ: ${TZ:-Etc/UTC}
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-      - traefik.enable=true
-      - traefik.http.routers.readarr.entrypoints=https
-      - traefik.http.routers.readarr.rule=Host(`readarr.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.readarr.tls=true
-      - traefik.http.routers.readarr.tls.certresolver=cloudflare
-      - traefik.http.services.readarr.loadbalancer.server.port=8787
-      - traefik.http.routers.readarr.middlewares=authentik-http@file
-    networks:
-      - servarr
-      - traefik
-    volumes:
-      - ./data/readarr:/config
-      - ebooks:/data/books #optional
-      - downloads:/data/downloads #optional
+  # readarr:
+  #   image: lscr.io/linuxserver/readarr:develop
+  #   container_name: readarr
+  #   restart: unless-stopped
+  #   environment:
+  #     PUID: ${PUID:?}
+  #     PGID: ${PGID:?}
+  #     TZ: ${TZ:-Etc/UTC}
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.readarr.entrypoints=https
+  #     - traefik.http.routers.readarr.rule=Host(`readarr.${TRAEFIK_DOMAIN:?}`)
+  #     - traefik.http.routers.readarr.tls=true
+  #     - traefik.http.routers.readarr.tls.certresolver=cloudflare
+  #     - traefik.http.services.readarr.loadbalancer.server.port=8787
+  #     - traefik.http.routers.readarr.middlewares=authentik-http@file
+  #   networks:
+  #     - servarr
+  #     - traefik
+  #   ports:
+  #     - 8787:8787
+  #   volumes:
+  #     - readarr:/config
+  #     - ${EBOOKS_DIR}:/data/books
 
   # Handles subtitles
   bazarr:
@@ -126,7 +129,6 @@ services:
       PGID: ${PGID:?}
       TZ: ${TZ:-Etc/UTC}
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.http.routers.bazarr.entrypoints=https
       - traefik.http.routers.bazarr.rule=Host(`bazarr.${TRAEFIK_DOMAIN:?}`)
@@ -134,16 +136,15 @@ services:
       - traefik.http.routers.bazarr.tls.certresolver=cloudflare
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
       - traefik.http.routers.bazarr.middlewares=authentik-http@file
-    expose:
-      - 6767
     networks:
       - servarr
       - traefik
+    ports:
+      - 6767:6767
     volumes:
       - ./data/bazarr:/config
-      - movies:/data/movies #optional
-      - series:/data/tv #optional
-
+      - ${MOVIES_DIR}:/data/movies
+      - ${SERIES_DIR}:/data/tv
   # Downloader
   transmission:
     image: lscr.io/linuxserver/transmission:latest
@@ -164,16 +165,17 @@ services:
       - traefik.http.routers.transmission.tls=true
       - traefik.http.routers.transmission.tls.certresolver=cloudflare
       - traefik.http.services.transmission.loadbalancer.server.port=9091
-      - traefik.http.routers.transmission.middlewares=authentik-http@file
-    ports:
-      - 51413:51413
-      - 51413:51413/udp
+      - traefik.http.routers.transmission.middlewares=authentik@file
     networks:
       - servarr
       - traefik
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
     volumes:
-      - ./data/transmission:/config
-      - downloads:/data/downloads
+      - transmission:/config
+      - ${DOWNLOADS_DIR}:/data/downloads
 
   # Request handling
   jellyseerr:
@@ -193,13 +195,14 @@ services:
       - traefik.http.routers.jellyseerr.middlewares=authentik@file
     networks:
       - traefik
+    ports:
+      - 5055:5055
     volumes:
-      - ./data/jellyseerr:/app/config
+      - jellyseerr:/app/config
 
 networks:
   servarr:
     name: servarr
-
   traefik:
     external: true
 
@@ -208,27 +211,17 @@ secrets:
     file: ./secrets/transmission_password.secret
 
 volumes:
-  downloads:
-    driver: local
-    driver_opts:
-      o: bind
-      type: local
-      device: /mnt/nas/slask/.torrents
-  ebooks:
-    driver: local
-    driver_opts:
-      o: bind
-      type: local
-      device: /mnt/nas/ebooks
-  movies:
-    driver: local
-    driver_opts:
-      o: bind
-      type: local
-      device: /mnt/nas/movies
-  series:
-    driver: local
-    driver_opts:
-      o: bind
-      type: local
-      device: /mnt/nas/series
+  bazaar:
+    name: bazaar-config
+  jellyseerr:
+    name: jellyseerr-config
+  prowlarr:
+    name: prowlarr-config
+  radarr:
+    name: radarr-config
+  readarr:
+    name: readarr-config
+  sonarr:
+    name: sonarr-config
+  transmission:
+    name: transmission-config

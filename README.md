@@ -22,15 +22,17 @@ Media management stack based on the *arr suite
 ## 2. Application setup
 Services are set up to use Authentik for authentication, if that's not preferable simply comment out the middleware lables from each service
 
+Recent versions **require** that you use authentication. If you don't care for authentication when accessing the services locally you can no longer skip authentication. You can however setup authentication initially and then enter the respective containers with `docker exec -it <service> bash` and open the config file with `vi /config/config.xml`. Change the `AuthenticationMethod` tag to `External` and restart the container.
+
 ### 2.1. Prowlarr
-1. Log into prowlarr (Set up user//pass if first time logging in)
+1. Log into prowlarr (Set up user//pass if first time logging in, use `Forms`)
 1. Settings->Indexers, add FlareSolverr
     1. Tags: flaresolverr
     1. Host: http://flaresolverr:8191
 1. Indexers->Add Indexer, select your indexers of choice but make sure to add `flaresolverr` tag to them
 
 ### 2.2. Sonarr
-1. Log into Sonarr (Set up user//pass if first time logging in)
+1. Log into Sonarr (Set up user//pass if first time logging in, use `Forms`)
 1. Settings->General, copy API Key
 1. Back to Prowlarr
 1. Settings->Apps, Add Application->Sonarr
@@ -39,7 +41,7 @@ Services are set up to use Authentik for authentication, if that's not preferabl
     - API Key: As generated in Sonarr
 
 ### 2.3. Radarr
-1. Log into Radarr (Set up user//pass if first time logging in)
+1. Log into Radarr (Set up user//pass if first time logging in, use `Forms`)
 1. Settings->General, copy API Key
 1. Back to Prowlarr
 1. Settings->Apps, Add Application->Sonarr
@@ -64,7 +66,6 @@ Services are set up to use Authentik for authentication, if that's not preferabl
 1. Settings->General
     - Authentication: Basic
     - Username//Password, set according to personal preference
-    - API Key, copy
 1. Settings->Sonarr
     1. Enabled: On
     1. Address: sonarr
