@@ -64,7 +64,7 @@ services:
     volumes:
       - sonarr:/config
       - ${SERIES_DIR}:/data/tv
-      - ${DOWNLOADS_DIR}:/data/downloads
+      - ${DOWNLOADS_DIR}:/downloads
 
   # Handles movies
   radarr:
@@ -91,7 +91,7 @@ services:
     volumes:
       - radarr:/config
       - ${MOVIES_DIR}:/data/movies
-      - ${DOWNLOADS_DIR}:/data/downloads
+      - ${DOWNLOADS_DIR}:/downloads
 
   # Handles eBooks
   # readarr:
@@ -142,7 +142,7 @@ services:
     ports:
       - 6767:6767
     volumes:
-      - ./data/bazarr:/config
+      - bazarr:/config
       - ${MOVIES_DIR}:/data/movies
       - ${SERIES_DIR}:/data/tv
   # Downloader
@@ -175,16 +175,24 @@ services:
       - 51413:51413/udp
     volumes:
       - transmission:/config
-      - ${DOWNLOADS_DIR}:/data/downloads
+      - ${DOWNLOADS_DIR}:/downloads
 
   # Request handling
   jellyseerr:
-    image: fallenbagel/jellyseerr:latest
+    # https://hub.docker.com/r/fallenbagel/jellyseerr/tags
+    image: fallenbagel/jellyseerr:preview-OIDC
     container_name: jellyseerr
     restart: unless-stopped
     environment:
       LOG_LEVEL: info
       TZ: ${TZ:-Etc/UTC}
+      TRUST_PROXY_HEADERS: true
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
     labels:
       - traefik.enable=true
       - traefik.http.routers.jellyseerr.entrypoints=https
@@ -200,6 +208,36 @@ services:
     volumes:
       - jellyseerr:/app/config
 
+  # Media streaming client
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
+      # JELLYFIN_KNOWN_PROXIES: 172.18.0.0/16
+      # JELLYFIN_PublishedServerUrl: https://jellyfin.${TRAEFIK_DOMAIN:?}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyfin.entrypoints=https
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${TRAEFIK_DOMAIN:?}`)
+      - traefik.http.routers.jellyfin.tls=true
+      - traefik.http.routers.jellyfin.tls.certresolver=cloudflare
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+      - traefik.http.routers.jellyfin.middlewares=authentik@file
+    networks:
+      - traefik
+    ports:
+      - 8096:8096
+    devices:
+      - /dev/dri/card0:/dev/dri/card0
+    volumes:
+      - jellyfin:/config
+      - ${MOVIES_DIR}:/data/movies
+      - ${SERIES_DIR}:/data/series
+
 networks:
   servarr:
     name: servarr
@@ -211,16 +249,18 @@ secrets:
     file: ./secrets/transmission_password.secret
 
 volumes:
-  bazaar:
-    name: bazaar-config
+  bazarr:
+    name: bazarr-config
+  lazylibrarian:
+    name: lazylibrarian-config
+  jellyfin:
+    name: jellyfin-config
   jellyseerr:
     name: jellyseerr-config
   prowlarr:
     name: prowlarr-config
   radarr:
     name: radarr-config
-  readarr:
-    name: readarr-config
   sonarr:
     name: sonarr-config
   transmission:
