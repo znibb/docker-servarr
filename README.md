@@ -1,6 +1,16 @@
 # docker-servarr <!-- omit from toc -->
 Media management stack based on the *arr suite
 
+| Role | Application |
+| :--- | :---------- |
+| Indexer | Prowlarr |
+| Movies | Radarr |
+| Series | Sonarr |
+| Subtitles | Bazarr |
+| Downloader | Transmission |
+| Streaming | Jellyfin |
+| Requests | Jellyseerr |
+
 ## Table of Contents <!-- omit from toc -->
 - [1. Server setup](#1-server-setup)
 - [2. Application setup](#2-application-setup)
