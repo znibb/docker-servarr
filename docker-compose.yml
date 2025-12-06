@@ -94,30 +94,32 @@ services:
       - ${DOWNLOADS_DIR}:/downloads
 
   # Handles eBooks
-  # readarr:
-  #   image: lscr.io/linuxserver/readarr:develop
-  #   container_name: readarr
-  #   restart: unless-stopped
-  #   environment:
-  #     PUID: ${PUID:?}
-  #     PGID: ${PGID:?}
-  #     TZ: ${TZ:-Etc/UTC}
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.http.routers.readarr.entrypoints=https
-  #     - traefik.http.routers.readarr.rule=Host(`readarr.${TRAEFIK_DOMAIN:?}`)
-  #     - traefik.http.routers.readarr.tls=true
-  #     - traefik.http.routers.readarr.tls.certresolver=cloudflare
-  #     - traefik.http.services.readarr.loadbalancer.server.port=8787
-  #     - traefik.http.routers.readarr.middlewares=authentik-http@file
-  #   networks:
-  #     - servarr
-  #     - traefik
-  #   ports:
-  #     - 8787:8787
-  #   volumes:
-  #     - readarr:/config
-  #     - ${EBOOKS_DIR}:/data/books
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: lazylibrarian
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID:?}
+      PGID: ${PGID:?}
+      TZ: ${TZ:-Etc/UTC}
+      DOCKER_MODS: linuxserver/mods:universal-calibre|linuxserver/mods:lazylibrarian-ffmpeg
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lazylibrarian.entrypoints=https
+      - traefik.http.routers.lazylibrarian.rule=Host(`lazylibrarian.${TRAEFIK_DOMAIN:?}`)
+      - traefik.http.routers.lazylibrarian.tls=true
+      - traefik.http.routers.lazylibrarian.tls.certresolver=cloudflare
+      - traefik.http.services.lazylibrarian.loadbalancer.server.port=5299
+      - traefik.http.routers.lazylibrarian.middlewares=authentik@file
+    networks:
+      - servarr
+      - traefik
+    ports:
+      - 5299:5299
+    volumes:
+      - lazylibrarian:/config
+      - ${DOWNLOADS_DIR}:/downloads
+      - ${EBOOKS_DIR}:/books
 
   # Handles subtitles
   bazarr:
