@@ -25,11 +25,9 @@ services:
       TZ: ${TZ:-Etc/UTC}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.prowlarr.entrypoints=https
-      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.prowlarr.tls=true
-      - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+      - traefik.http.routers.prowlarr.entrypoints=websecure
+      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.prowlarr.middlewares=authentik-http@file
     networks:
       - servarr
@@ -50,11 +48,9 @@ services:
       TZ: ${TZ:-Etc/UTC}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.sonarr.entrypoints=https
-      - traefik.http.routers.sonarr.rule=Host(`sonarr.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.sonarr.tls=true
-      - traefik.http.routers.sonarr.tls.certresolver=cloudflare
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
+      - traefik.http.routers.sonarr.entrypoints=websecure
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.sonarr.middlewares=authentik-http@file
     networks:
       - servarr
@@ -77,11 +73,9 @@ services:
       TZ: ${TZ:-Etc/UTC}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.radarr.entrypoints=https
-      - traefik.http.routers.radarr.rule=Host(`radarr.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.radarr.tls=true
-      - traefik.http.routers.radarr.tls.certresolver=cloudflare
       - traefik.http.services.radarr.loadbalancer.server.port=7878
+      - traefik.http.routers.radarr.entrypoints=websecure
+      - traefik.http.routers.radarr.rule=Host(`radarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.radarr.middlewares=authentik-http@file
     networks:
       - servarr
@@ -105,11 +99,9 @@ services:
       DOCKER_MODS: linuxserver/mods:universal-calibre|linuxserver/mods:lazylibrarian-ffmpeg
     labels:
       - traefik.enable=true
-      - traefik.http.routers.lazylibrarian.entrypoints=https
-      - traefik.http.routers.lazylibrarian.rule=Host(`lazylibrarian.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.lazylibrarian.tls=true
-      - traefik.http.routers.lazylibrarian.tls.certresolver=cloudflare
       - traefik.http.services.lazylibrarian.loadbalancer.server.port=5299
+      - traefik.http.routers.lazylibrarian.entrypoints=websecure
+      - traefik.http.routers.lazylibrarian.rule=Host(`lazylibrarian.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.lazylibrarian.middlewares=authentik@file
     networks:
       - servarr
@@ -132,11 +124,9 @@ services:
       TZ: ${TZ:-Etc/UTC}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.bazarr.entrypoints=https
-      - traefik.http.routers.bazarr.rule=Host(`bazarr.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.bazarr.tls=true
-      - traefik.http.routers.bazarr.tls.certresolver=cloudflare
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
+      - traefik.http.routers.bazarr.entrypoints=websecure
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.bazarr.middlewares=authentik-http@file
     networks:
       - servarr
@@ -163,11 +153,9 @@ services:
       TZ: ${TZ:-Etc/UTC}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.transmission.entrypoints=https
-      - traefik.http.routers.transmission.rule=Host(`transmission.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.transmission.tls=true
-      - traefik.http.routers.transmission.tls.certresolver=cloudflare
       - traefik.http.services.transmission.loadbalancer.server.port=9091
+      - traefik.http.routers.transmission.entrypoints=websecure
+      - traefik.http.routers.transmission.rule=Host(`transmission.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.transmission.middlewares=authentik@file
     networks:
       - servarr
@@ -198,11 +186,9 @@ services:
       timeout: 5s
     labels:
       - traefik.enable=true
-      - traefik.http.routers.jellyseerr.entrypoints=https
-      - traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.jellyseerr.tls=true
-      - traefik.http.routers.jellyseerr.tls.certresolver=cloudflare
       - traefik.http.services.jellyseerr.loadbalancer.server.port=5055
+      - traefik.http.routers.jellyseerr.entrypoints=websecure
+      - traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.${TRAEFIK_DOMAIN:?}`)
       - traefik.http.routers.jellyseerr.middlewares=authentik@file
     networks:
       - traefik
@@ -230,20 +216,16 @@ services:
       - traefik.http.services.jellyfin.loadbalancer.passHostHeader=true
 
       # Router
-      - traefik.http.routers.jellyfin.entrypoints=https
+      - traefik.http.routers.jellyfin.entrypoints=websecure
       - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.jellyfin.tls=true
-      - traefik.http.routers.jellyfin.tls.certresolver=cloudflare
       - traefik.http.routers.jellyfin.middlewares=authentik@file
 
       # Custom middleware
       - traefik.http.middlewares.authentik-bypass.headers.customrequestheaders.X-Bypass-WebSocket=true
 
       # Bypass Authentik for /socket connections (Android app)
-      - traefik.http.routers.jellyfin-socket.entrypoints=https
+      - traefik.http.routers.jellyfin-socket.entrypoints=websecure
       - traefik.http.routers.jellyfin-socket.rule=Host(`jellyfin.${TRAEFIK_DOMAIN:?}`) && PathPrefix(`/socket`)
-      - traefik.http.routers.jellyfin-socket.tls=true
-      - traefik.http.routers.jellyfin-socket.tls.certresolver=cloudflare
       - traefik.http.routers.jellyfin-socket.service=jellyfin
       - traefik.http.routers.jellyfin-socket.middlewares=authentik-bypass@docker
     networks:
