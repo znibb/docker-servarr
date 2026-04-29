@@ -99,9 +99,17 @@ services:
       DOCKER_MODS: linuxserver/mods:universal-calibre|linuxserver/mods:lazylibrarian-ffmpeg
     labels:
       - traefik.enable=true
+<<<<<<< Updated upstream
       - traefik.http.services.lazylibrarian.loadbalancer.server.port=5299
       - traefik.http.routers.lazylibrarian.entrypoints=websecure
       - traefik.http.routers.lazylibrarian.rule=Host(`lazylibrarian.${TRAEFIK_DOMAIN:?}`)
+=======
+      - traefik.http.routers.lazylibrarian.entrypoints=https
+      - traefik.http.routers.lazylibrarian.rule=Host(`lazylibrarian.${TRAEFIK_DOMAIN:?}`)
+      - traefik.http.routers.lazylibrarian.tls=true
+      - traefik.http.routers.lazylibrarian.tls.certresolver=cloudflare
+      - traefik.http.services.lazylibrarian.loadbalancer.server.port=5299
+>>>>>>> Stashed changes
       - traefik.http.routers.lazylibrarian.middlewares=authentik@file
     networks:
       - servarr
