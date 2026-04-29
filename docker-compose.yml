@@ -218,16 +218,7 @@ services:
       # Router
       - traefik.http.routers.jellyfin.entrypoints=websecure
       - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${TRAEFIK_DOMAIN:?}`)
-      - traefik.http.routers.jellyfin.middlewares=authentik@file
-
-      # Custom middleware
-      - traefik.http.middlewares.authentik-bypass.headers.customrequestheaders.X-Bypass-WebSocket=true
-
-      # Bypass Authentik for /socket connections (Android app)
-      - traefik.http.routers.jellyfin-socket.entrypoints=websecure
-      - traefik.http.routers.jellyfin-socket.rule=Host(`jellyfin.${TRAEFIK_DOMAIN:?}`) && PathPrefix(`/socket`)
-      - traefik.http.routers.jellyfin-socket.service=jellyfin
-      - traefik.http.routers.jellyfin-socket.middlewares=authentik-bypass@docker
+      - traefik.http.routers.jellyfin.middlewares=default@file
     networks:
       - traefik
     ports:
